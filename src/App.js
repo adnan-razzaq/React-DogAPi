@@ -1,26 +1,48 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import DogList from "./components/DogList";
 
-function App() {
+export default function App() {
+  const [breedlist, setbreedlist] = useState([]);
+  const [breed, setbreed] = useState("hound");
+  const [image, setimage] = useState([]);
+
+  useEffect(() => {
+    fetch("https://dog.ceo/api/breeds/list/all")
+      .then((data) => data.json())
+      .then((data) => {
+        const res = Object.keys(data.message);
+        setbreedlist(res);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch(`https://dog.ceo/api/breed/hound/images/random/50`)
+      .then((data) => data.json())
+      .then((data) => setimage(data.message))
+      .catch((error) => console.log(error));
+  }, [breed]);
+
+  const handlechange = (e) => {
+    setbreed(e.target.value);
+  };
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+    <>
+      <div>
+        <select
+          className="p-20 w-screen bg-red-500 text-3xl "
+          value={breed}
+          onChange={handlechange}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
+          {breedlist.map((list, index) => (
+            <option className="text-3xl" key={index}>
+              {list}
+            </option>
+          ))}
+        </select>
+        <div className="col-span-2">
+          <DogList images={image} />
+        </div>
+      </div>
+    </>
   );
 }
-
-export default App;
